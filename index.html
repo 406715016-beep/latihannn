@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kata Adjektif — Latihan Interaktif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FFF8EC;
+    --paper-line:#EFE2C6;
+    --ink:#3B2C35;
+    --ink-soft:#7A6B70;
+    --coral:#FF6B5C;
+    --coral-dark:#E24E3F;
+    --teal:#3FBDB6;
+    --mustard:#F4B740;
+    --lavender:#9D8CD9;
+    --green:#3FA66B;
+    --green-bg:#E4F5EA;
+    --red:#E24E3F;
+    --red-bg:#FCE7E3;
+    --yellow-bg:#FEF3D9;
+    --yellow-ink:#9A6B00;
+    --card-shadow: 0 10px 0 var(--paper-line), 0 12px 24px rgba(59,44,53,0.12);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Nunito',sans-serif;
+    background:
+      radial-gradient(circle at 92% 8%, #FFE9C9 0%, transparent 40%),
+      radial-gradient(circle at 4% 90%, #D9F0EE 0%, transparent 45%),
+      var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+    padding:28px 16px 60px;
+  }
+  .wrap{max-width:640px;margin:0 auto;}
+
+  /* header */
+  .stamp{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--ink);color:var(--paper);
+    font-family:'Fredoka',sans-serif;font-weight:600;
+    font-size:13px;letter-spacing:.06em;text-transform:uppercase;
+    padding:6px 14px;border-radius:100px;
+    transform:rotate(-2deg);
+  }
+  h1{
+    font-family:'Fredoka',sans-serif;
+    font-size:clamp(28px,6vw,38px);
+    font-weight:700;
+    margin:14px 0 4px;
+    line-height:1.1;
+  }
+  .sub{color:var(--ink-soft);font-size:15px;margin:0 0 22px;}
+  .sub b{color:var(--ink);}
+
+  /* progress dots */
+  .dots{display:flex;gap:6px;margin-bottom:22px;flex-wrap:wrap;}
+  .dot{
+    width:26px;height:8px;border-radius:6px;background:var(--paper-line);
+    transition:background .25s ease, transform .25s ease;
+  }
+  .dot.done-correct{background:var(--green);}
+  .dot.done-wrong{background:var(--coral);}
+  .dot.current{background:var(--ink);transform:scaleY(1.3);}
+
+  /* card */
+  .card{
+    background:#fff;
+    border:2px solid var(--ink);
+    border-radius:20px;
+    box-shadow:var(--card-shadow);
+    padding:26px 22px 22px;
+    position:relative;
+  }
+  .qno{
+    font-family:'Fredoka',sans-serif;
+    font-weight:600;font-size:13px;color:var(--ink-soft);
+    text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;
+  }
+  .sentence{
+    font-family:'Fredoka',sans-serif;
+    font-size:clamp(19px,4.6vw,23px);
+    font-weight:600;line-height:1.45;margin:0 0 6px;
+  }
+  .hint{
+    font-size:14px;color:var(--ink-soft);margin:0 0 18px;
+    border-left:3px solid var(--mustard);padding-left:10px;
+  }
+  .options{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  }
+  @media (max-width:420px){ .options{grid-template-columns:1fr;} }
+  .opt{
+    font-family:'Nunito',sans-serif;
+    font-weight:800;font-size:16px;
+    background:var(--paper);
+    border:2px solid var(--ink);
+    border-radius:12px;
+    padding:14px 12px;
+    cursor:pointer;
+    text-align:center;
+    transition:transform .12s ease, box-shadow .12s ease, background .15s ease;
+    box-shadow:0 4px 0 var(--ink);
+  }
+  .opt:hover:not(:disabled){transform:translateY(-2px);}
+  .opt:active:not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 var(--ink);}
+  .opt:disabled{cursor:default;}
+  .opt.correct-pick{background:var(--green-bg);border-color:var(--green);}
+  .opt.wrong-pick{background:var(--red-bg);border-color:var(--red);}
+  .opt.reveal-correct{background:var(--green-bg);border-color:var(--green);}
+  .opt.dim{opacity:.45;}
+
+  /* feedback banner */
+  .feedback{
+    margin-top:18px;padding:14px 16px;border-radius:14px;
+    font-size:15px;line-height:1.55;font-weight:600;
+    display:none;
+    animation:pop .25s ease;
+  }
+  @keyframes pop{from{transform:scale(.97);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .feedback.show{display:block;}
+  .feedback.green{background:var(--green-bg);color:#256B44;border:2px solid var(--green);}
+  .feedback.red{background:var(--red-bg);color:#A6362A;border:2px solid var(--red);}
+  .feedback.yellow{background:var(--yellow-bg);color:var(--yellow-ink);border:2px solid var(--mustard);}
+  .feedback .tag{
+    display:inline-block;font-family:'Fredoka',sans-serif;
+    font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    background:rgba(0,0,0,0.08);padding:2px 8px;border-radius:100px;margin-bottom:6px;
+  }
+
+  .next-btn{
+    margin-top:16px;width:100%;
+    font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;
+    background:var(--ink);color:var(--paper);
+    border:none;border-radius:12px;padding:13px;cursor:pointer;
+    display:none;
+  }
+  .next-btn.show{display:block;}
+  .next-btn:hover{background:#2A1F26;}
+
+  /* score bar */
+  .scorebar{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-top:16px;font-size:13px;color:var(--ink-soft);font-weight:700;
+  }
+
+  /* result screen */
+  .result{display:none;text-align:center;padding:10px;}
+  .result.show{display:block;}
+  .result .emoji{font-size:56px;}
+  .result h2{font-family:'Fredoka',sans-serif;font-size:26px;margin:6px 0 2px;}
+  .result p{color:var(--ink-soft);margin:4px 0 20px;}
+  .result .bignum{
+    font-family:'Fredoka',sans-serif;font-size:52px;font-weight:700;color:var(--coral-dark);
+  }
+  .restart{
+    margin-top:18px;background:var(--teal);color:#fff;border:2px solid var(--ink);
+    font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;
+    padding:12px 22px;border-radius:100px;cursor:pointer;box-shadow:0 4px 0 var(--ink);
+  }
+  .restart:active{transform:translateY(2px);box-shadow:0 2px 0 var(--ink);}
+
+  .legend{margin-top:24px;font-size:12.5px;color:var(--ink-soft);display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .swatch{width:10px;height:10px;border-radius:3px;display:inline-block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <span class="stamp">✎ Lembaran Kerja Bahasa Melayu</span>
+  <h1>Cari Kata Adjektif-nya!</h1>
+  <p class="sub">อ่านประโยค แล้วแตะคำที่เป็น <b>Kata Adjektif</b> (คำคุณศัพท์ — บอกลักษณะ สภาพ สี ขนาด หรือความรู้สึก)</p>
+
+  <div class="dots" id="dots"></div>
+
+  <div class="card" id="quizCard">
+    <div class="qno" id="qno">Soalan 1 / 10</div>
+    <p class="sentence" id="sentence"></p>
+    <p class="hint">💡 แตะคำในประโยคที่ทำหน้าที่บอก "ลักษณะ" หรือ "คุณสมบัติ"</p>
+    <div class="options" id="options"></div>
+
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn">ข้อถัดไป →</button>
+
+    <div class="scorebar">
+      <span>คะแนน: <span id="score">0</span> / 10</span>
+      <span id="streak"></span>
+    </div>
+  </div>
+
+  <div class="card result" id="resultCard">
+    <div class="emoji" id="resultEmoji">🎉</div>
+    <h2 id="resultTitle">Tahniah!</h2>
+    <p id="resultSub">คุณทำได้ดีมาก</p>
+    <div class="bignum"><span id="finalScore">0</span>/10</div>
+    <div><button class="restart" id="restartBtn">🔁 เริ่มใหม่</button></div>
+  </div>
+
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--green)"></span> ถูกต้อง</span>
+    <span><span class="swatch" style="background:var(--mustard)"></span> เลือกคำนาม/คำกริยา</span>
+    <span><span class="swatch" style="background:var(--red)"></span> ยังไม่ถูก</span>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    sentence: "Kucing itu sangat comel.",
+    options: [
+      {word:"Kucing", type:"noun"},
+      {word:"itu", type:"other"},
+      {word:"sangat", type:"other"},
+      {word:"comel", type:"adj", note:"Kata Adjektif jenis Keadaan/Penampilan — หมายถึง “น่ารัก”"}
+    ]
+  },
+  {
+    sentence: "Dia seorang guru yang rajin.",
+    options: [
+      {word:"seorang", type:"other"},
+      {word:"guru", type:"noun"},
+      {word:"mengajar", type:"verb"},
+      {word:"rajin", type:"adj", note:"Kata Adjektif jenis Sifat Peribadi — หมายถึง “ขยัน”"}
+    ]
+  },
+  {
+    sentence: "Ali makan nasi yang sedap.",
+    options: [
+      {word:"makan", type:"verb"},
+      {word:"nasi", type:"noun"},
+      {word:"yang", type:"other"},
+      {word:"sedap", type:"adj", note:"Kata Adjektif jenis Rasa — หมายถึง “อร่อย”"}
+    ]
+  },
+  {
+    sentence: "Kakak memakai baju merah yang cantik.",
+    options: [
+      {word:"memakai", type:"verb"},
+      {word:"baju", type:"noun"},
+      {word:"merah", type:"adj", note:"Kata Adjektif jenis Warna — หมายถึง “สีแดง”"},
+      {word:"yang", type:"other"}
+    ]
+  },
+  {
+    sentence: "Rumah itu sangat besar.",
+    options: [
+      {word:"Rumah", type:"noun"},
+      {word:"itu", type:"other"},
+      {word:"duduk", type:"verb"},
+      {word:"besar", type:"adj", note:"Kata Adjektif jenis Ukuran — หมายถึง “ใหญ่”"}
+    ]
+  },
+  {
+    sentence: "Ayah minum kopi yang panas.",
+    options: [
+      {word:"minum", type:"verb"},
+      {word:"kopi", type:"noun"},
+      {word:"yang", type:"other"},
+      {word:"panas", type:"adj", note:"Kata Adjektif jenis Suhu — หมายถึง “ร้อน”"}
+    ]
+  },
+  {
+    sentence: "Dia berasa sangat gembira hari ini.",
+    options: [
+      {word:"berasa", type:"verb"},
+      {word:"hari", type:"noun"},
+      {word:"sangat", type:"other"},
+      {word:"gembira", type:"adj", note:"Kata Adjektif jenis Perasaan — หมายถึง “มีความสุข/ดีใจ”"}
+    ]
+  },
+  {
+    sentence: "Buku itu tebal dan berat.",
+    options: [
+      {word:"Buku", type:"noun"},
+      {word:"baca", type:"verb"},
+      {word:"tebal", type:"adj", note:"Kata Adjektif jenis Bentuk/Ukuran — หมายถึง “หนา”"},
+      {word:"dan", type:"other"}
+    ]
+  },
+  {
+    sentence: "Adik menangis kerana sedih.",
+    options: [
+      {word:"menangis", type:"verb"},
+      {word:"Adik", type:"noun"},
+      {word:"kerana", type:"other"},
+      {word:"sedih", type:"adj", note:"Kata Adjektif jenis Perasaan — หมายถึง “เศร้า”"}
+    ]
+  },
+  {
+    sentence: "Gajah itu haiwan yang kuat dan besar.",
+    options: [
+      {word:"Gajah", type:"noun"},
+      {word:"berjalan", type:"verb"},
+      {word:"kuat", type:"adj", note:"Kata Adjektif jenis Sifat — หมายถึง “แข็งแรง”"},
+      {word:"dan", type:"other"}
+    ]
+  }
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+const results = []; // 'correct' | 'wrong' per question
+
+const dotsEl = document.getElementById('dots');
+const qnoEl = document.getElementById('qno');
+const sentenceEl = document.getElementById('sentence');
+const optionsEl = document.getElementById('options');
+const feedbackEl = document.getElementById('feedback');
+const nextBtn = document.getElementById('nextBtn');
+const scoreEl = document.getElementById('score');
+const quizCard = document.getElementById('quizCard');
+const resultCard = document.getElementById('resultCard');
+
+function buildDots(){
+  dotsEl.innerHTML = '';
+  QUESTIONS.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot-' + i;
+    dotsEl.appendChild(d);
+  });
+}
+
+function updateDots(){
+  QUESTIONS.forEach((_, i) => {
+    const d = document.getElementById('dot-' + i);
+    d.classList.remove('current','done-correct','done-wrong');
+    if (results[i] === 'correct') d.classList.add('done-correct');
+    else if (results[i] === 'wrong') d.classList.add('done-wrong');
+    if (i === current) d.classList.add('current');
+  });
+}
+
+function loadQuestion(){
+  answered = false;
+  feedbackEl.className = 'feedback';
+  feedbackEl.innerHTML = '';
+  nextBtn.classList.remove('show');
+  qnoEl.textContent = `Soalan ${current + 1} / ${QUESTIONS.length}`;
+  const q = QUESTIONS[current];
+  sentenceEl.textContent = q.sentence;
+  optionsEl.innerHTML = '';
+  q.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.textContent = opt.word;
+    btn.addEventListener('click', () => handleAnswer(opt, btn));
+    optionsEl.appendChild(btn);
+  });
+  updateDots();
+}
+
+function handleAnswer(opt, btn){
+  if (answered) return;
+  answered = true;
+
+  const allBtns = optionsEl.querySelectorAll('.opt');
+  allBtns.forEach(b => b.disabled = true);
+
+  const q = QUESTIONS[current];
+  const correctOpt = q.options.find(o => o.type === 'adj');
+
+  feedbackEl.classList.add('show');
+
+  if (opt.type === 'adj') {
+    // correct
+    btn.classList.add('correct-pick');
+    feedbackEl.classList.add('green');
+    feedbackEl.innerHTML = `<span class="tag">Betul</span><br>🟢 Betul! “${opt.word}” เป็น ${opt.note}.`;
+    score++;
+    results[current] = 'correct';
+  } else {
+    btn.classList.add('wrong-pick');
+    allBtns.forEach(b => { if (b.textContent === correctOpt.word) b.classList.add('reveal-correct'); });
+    results[current] = 'wrong';
+
+    if (opt.type === 'noun') {
+      feedbackEl.classList.add('yellow');
+      feedbackEl.innerHTML = `<span class="tag">Cuba lagi</span><br>🟡 Belum tepat! “${opt.word}” เป็น Kata Nama ใช้เรียกบุคคล สิ่งของ สถานที่ หรือสิ่งต่าง ๆ ส่วนคำที่บอกลักษณะในประโยคนี้คือ “${correctOpt.word}” = ${correctOpt.note.split('— ')[1] || ''}`;
+    } else if (opt.type === 'verb') {
+      feedbackEl.classList.add('yellow');
+      feedbackEl.innerHTML = `<span class="tag">Cuba lagi</span><br>🟡 Belum tepat! “${opt.word}” เป็น Kata Kerja บอกการกระทำ ส่วน “${correctOpt.word}” เป็นคำที่บอกความรู้สึก/ลักษณะ จึงเป็น Kata Adjektif = ${correctOpt.note.split('— ')[1] || ''}`;
+    } else {
+      feedbackEl.classList.add('red');
+      feedbackEl.innerHTML = `<span class="tag">Belum tepat</span><br>🔴 Belum tepat. ลองถามว่า "คำนี้ใช้บอกลักษณะหรือคุณสมบัติของสิ่งที่กล่าวถึงหรือไม่?" คำที่ถูกต้องคือ “${correctOpt.word}”.`;
+    }
+  }
+
+  scoreEl.textContent = score;
+  updateDots();
+  nextBtn.classList.add('show');
+  nextBtn.textContent = (current === QUESTIONS.length - 1) ? 'ดูผลคะแนน →' : 'ข้อถัดไป →';
+}
+
+nextBtn.addEventListener('click', () => {
+  if (current < QUESTIONS.length - 1) {
+    current++;
+    loadQuestion();
+  } else {
+    showResult();
+  }
+});
+
+function showResult(){
+  quizCard.style.display = 'none';
+  document.querySelector('.legend').style.display = 'none';
+  resultCard.classList.add('show');
+  document.getElementById('finalScore').textContent = score;
+
+  const emoji = document.getElementById('resultEmoji');
+  const title = document.getElementById('resultTitle');
+  const sub = document.getElementById('resultSub');
+
+  if (score === QUESTIONS.length) {
+    emoji.textContent = '🎉';
+    title.textContent = 'Tahniah! Semua jawapan betul!';
+    sub.textContent = 'คุณสามารถระบุ Kata Adjektif ในประโยคได้ถูกต้องทั้งหมด เก่งมาก!';
+  } else if (score >= QUESTIONS.length * 0.6) {
+    emoji.textContent = '👏';
+    title.textContent = 'Bagus!';
+    sub.textContent = 'ทำได้ดี ลองทบทวนข้อที่ยังไม่ถูกอีกครั้งนะ';
+  } else {
+    emoji.textContent = '💪';
+    title.textContent = 'Jangan risau, cuba lagi!';
+    sub.textContent = 'ลองทบทวนความหมายของ Kata Adjektif แล้วลองใหม่อีกครั้ง';
+  }
+}
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+  current = 0; score = 0; answered = false;
+  results.length = 0;
+  scoreEl.textContent = 0;
+  quizCard.style.display = 'block';
+  document.querySelector('.legend').style.display = 'flex';
+  resultCard.classList.remove('show');
+  loadQuestion();
+});
+
+buildDots();
+loadQuestion();
+</script>
+</body>
+</html>
